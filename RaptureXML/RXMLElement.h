@@ -32,6 +32,7 @@
 #import <libxml2/libxml/xmlreader.h>
 #import <libxml2/libxml/xmlmemory.h>
 #import <libxml2/libxml/HTMLparser.h>
+#import <libxml2/libxml/parser.h>
 #import <libxml/xpath.h>
 #import <libxml/xpathInternals.h>
 
@@ -97,6 +98,7 @@
 - (void)iterate:(NSString *)query usingBlock:(void (^)(RXMLElement *))blk;
 - (void)iterateWithRootXPath:(NSString *)xpath usingBlock:(void (^)(RXMLElement *))blk;
 - (void)iterateElements:(NSArray *)elements usingBlock:(void (^)(RXMLElement *))blk;
+- (void) updateXpath:(NSString*)xpath withNewNodeValue:(NSString*) nodeValue;
 
 @property (nonatomic, strong) RXMLDocHolder *xmlDoc;
 @property (nonatomic, readonly) NSString *tag;

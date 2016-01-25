@@ -538,4 +538,89 @@
     }
 }
 
+
+- (void) updateXpath:(NSString*)xpath withNewNodeValue:(NSString*) nodeValue {
+    
+    xmlDocPtr doc = [self.xmlDoc doc];
+    xmlXPathContextPtr xpathCtx;
+    xmlXPathObjectPtr xpathObj;
+    /* Create xpath evaluation context */
+    xpathCtx = xmlXPathNewContext(doc);
+    if (NULL == xpathCtx) {
+        return;
+    }
+    /* Evaluate xpath expression */
+    xpathObj = xmlXPathEvalExpression((xmlChar *)[xpath cStringUsingEncoding:NSUTF8StringEncoding], xpathCtx);
+    if (NULL == xpathObj) {
+        xmlXPathFreeContext(xpathCtx);
+        return;
+    }
+    
+    // Update
+    xmlNodeSetPtr nodes = xpathObj->nodesetval;
+    int size, i;
+    size = (nodes) ? nodes->nodeNr : 0;
+    /*
+     * NOTE: the nodes are processed in reverse order, i.e. reverse document
+     *       order because xmlNodeSetContent can actually free up descendant
+     *       of the node and such nodes may have been selected too ! Handling
+     *       in reverse order ensure that descendant are accessed first, before
+     *       they get removed. Mixing XPath and modifications on a tree must be
+     *       done carefully !
+     */
+    for(i = size - 1; i >= 0; i--) {
+        assert(nodes->nodeTab[i]);
+        
+        xmlNodeSetContent(nodes->nodeTab[i], (xmlChar *)[nodeValue cStringUsingEncoding:NSUTF8StringEncoding]);
+        /*
+         * All the elements returned by an XPath query are pointers to
+         * elements from the tree *except* namespace nodes where the XPath
+         * semantic is different from the implementation in libxml2 tree.
+         * As a result when a returned node set is freed when
+         * xmlXPathFreeObject() is called, that routine must check the
+         * element type. But node from the returned set may have been removed
+         * by xmlNodeSetContent() resulting in access to freed data.
+         * This can be exercised by running
+         *       valgrind xpath2 test3.xml '//discarded' discarded
+         * There is 2 ways around it:
+         *   - make a copy of the pointers to the nodes from the result set
+         *     then call xmlXPathFreeObject() and then modify the nodes
+         * or
+         *   - remove the reference to the modified nodes from the node set
+         *     as they are processed, if they are not namespace nodes.
+         */
+        if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)
+            nodes->nodeTab[i] = NULL;
+    }
+    
+    xmlXPathFreeContext(xpathCtx);
+}
+
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
