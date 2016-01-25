@@ -538,8 +538,15 @@
     }
 }
 
-
-- (void) updateXpath:(NSString*)xpath withNewNodeValue:(NSString*) nodeValue {
+/**
+ *  Update xml node with xpath and feeded new value list
+ *
+ *  @param xpath
+ *  @param nodeValue New value list, must have at least one item
+ *
+ *  @return New values count can only be equal to the xpath matching nodes count, or have only one specified value
+ */
+- (BOOL) updateXpath:(NSString*)xpath withNewNodeValues:(NSArray *)nodeValue {
     
     xmlDocPtr doc = [self.xmlDoc doc];
     xmlXPathContextPtr xpathCtx;
@@ -547,19 +554,22 @@
     /* Create xpath evaluation context */
     xpathCtx = xmlXPathNewContext(doc);
     if (NULL == xpathCtx) {
-        return;
+        return NO;
     }
     /* Evaluate xpath expression */
     xpathObj = xmlXPathEvalExpression((xmlChar *)[xpath cStringUsingEncoding:NSUTF8StringEncoding], xpathCtx);
     if (NULL == xpathObj) {
         xmlXPathFreeContext(xpathCtx);
-        return;
+        return NO;
     }
     
     // Update
     xmlNodeSetPtr nodes = xpathObj->nodesetval;
     int size, i;
     size = (nodes) ? nodes->nodeNr : 0;
+    if (size > 0 && size != [nodeValue count]) {
+        return NO;
+    }
     /*
      * NOTE: the nodes are processed in reverse order, i.e. reverse document
      *       order because xmlNodeSetContent can actually free up descendant
@@ -571,7 +581,7 @@
     for(i = size - 1; i >= 0; i--) {
         assert(nodes->nodeTab[i]);
         
-        xmlNodeSetContent(nodes->nodeTab[i], (xmlChar *)[nodeValue cStringUsingEncoding:NSUTF8StringEncoding]);
+        xmlNodeSetContent(nodes->nodeTab[i], (xmlChar *)[nodeValue[i] cStringUsingEncoding:NSUTF8StringEncoding]);
         /*
          * All the elements returned by an XPath query are pointers to
          * elements from the tree *except* namespace nodes where the XPath
@@ -594,6 +604,8 @@
     }
     
     xmlXPathFreeContext(xpathCtx);
+    
+    return YES;
 }
 
 @end

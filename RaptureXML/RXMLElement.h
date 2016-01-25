@@ -98,7 +98,16 @@
 - (void)iterate:(NSString *)query usingBlock:(void (^)(RXMLElement *))blk;
 - (void)iterateWithRootXPath:(NSString *)xpath usingBlock:(void (^)(RXMLElement *))blk;
 - (void)iterateElements:(NSArray *)elements usingBlock:(void (^)(RXMLElement *))blk;
-- (void) updateXpath:(NSString*)xpath withNewNodeValue:(NSString*) nodeValue;
+
+/**
+ *  Update xml node with xpath and feeded new value list
+ *
+ *  @param xpath
+ *  @param nodeValue New value list, must have at least one item
+ *
+ *  @return New values count can only be equal to the xpath matching nodes count, or have only one specified value
+ */
+- (BOOL) updateXpath:(NSString*)xpath withNewNodeValues:(NSArray*) nodeValue;
 
 @property (nonatomic, strong) RXMLDocHolder *xmlDoc;
 @property (nonatomic, readonly) NSString *tag;
