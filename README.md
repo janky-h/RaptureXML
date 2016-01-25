@@ -134,6 +134,15 @@ And remember, you can also test attributes using XPath as well. Here's how you c
 		NSLog(@"Player #5: %@", [player child:@"name"]);
 	}];    
 
+#### Update XML using XPath
+Update xml node values that matching specified XPath with feeded new value list. Note that the new value list can contain only one item which will be used to replace all matching nodes in xml, or contain just enough values to replace all matching nodes.
+
+```
+[rootXML   updateXpath:@"/team/player[@age='30']/@name" 
+	  withNewNodeValue:[NSArray arrayWithObjects:@"xuman",@"ristory", nil]];
+```
+
+
 Note that you can only use XPath from the document root and it won't matter what RXMLElement you have.  If you have a derived RXMLElement, you can still build from the document root. If you're not familiar with XPath, you can use this [handy guide](http://www.w3schools.com/xpath/xpath_syntax.asp).
 
 # Namespaces #
